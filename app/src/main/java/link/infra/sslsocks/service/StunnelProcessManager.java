@@ -127,7 +127,7 @@ public class StunnelProcessManager {
             String[] env = new String[0];
             File workingDirectory = new File(context.getFilesDir().getPath());
 
-            // Old directory
+            // Old directory Ari
             // String exec_directory = context.getFilesDir().getPath();
 
             String exec_directory = context.getApplicationInfo().nativeLibraryDir;
@@ -207,7 +207,7 @@ public class StunnelProcessManager {
             String[] env = new String[0];
             File workingDirectory = new File(context.getFilesDir().getPath());
 
-            // Old directory
+            // Old directory Ari
             // String exec_directory = context.getFilesDir().getPath();
 
             // Make the process fail, so we can extract just the version from the error stream

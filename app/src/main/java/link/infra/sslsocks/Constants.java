@@ -24,6 +24,8 @@
 package link.infra.sslsocks;
 
 public class Constants {
+	// Old Ari
+	// public static final String EXECUTABLE = "stunnel";
 	public static final String EXECUTABLE = "lib_stunnel.so";
 	public static final String CONFIG = "config.conf";
 	public static final String PSKSECRETS = "psksecrets.txt";
