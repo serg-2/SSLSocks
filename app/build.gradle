@@ -8,8 +8,9 @@ android {
     compileSdk = 36
     defaultConfig {
         applicationId "link.infra.sslsocks"
-        // minSdkVersion 26
-        minSdkVersion 19
+        // minSdkVersion 19
+        // 23 for nativelibs
+        minSdkVersion 23
         // Can't change to 29 due to need to run executable from cache.
         targetSdkVersion 30
         versionCode 20

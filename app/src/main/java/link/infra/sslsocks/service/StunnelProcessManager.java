@@ -118,6 +118,7 @@ public class StunnelProcessManager {
     void start(StunnelIntentService context) {
         File pidFile = new File(context.getFilesDir().getPath() + "/" + PID);
         if (stunnelProcess != null || pidFile.exists()) {
+            Log.i(TAG, "Trying stop from start");
             stop(context);
         }
         checkAndExtract(context);
@@ -137,14 +138,16 @@ public class StunnelProcessManager {
                 workingDirectory
             );
 
-            readInputStream(context, Okio.buffer(Okio.source(stunnelProcess.getErrorStream())));
-            readInputStream(context, Okio.buffer(Okio.source(stunnelProcess.getInputStream())));
+            new Thread(() -> readInputStream(context, Okio.buffer(Okio.source(stunnelProcess.getErrorStream())))).start();
+            new Thread(() -> readInputStream(context, Okio.buffer(Okio.source(stunnelProcess.getInputStream())))).start();
+
             stunnelProcess.waitFor();
         } catch (IOException e) {
             Log.e(TAG, "failure", e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+        Log.d(TAG, "Done starting.");
     }
 
     private static void readInputStream(final StunnelIntentService context, final BufferedSource in) {
@@ -181,9 +184,20 @@ public class StunnelProcessManager {
             }
 
             if (pid == null || !pid.trim().equals("")) {
-                Log.d(TAG, "Attempting to kill stunnel, pid = " + pid);
+                Log.d(TAG, "Attempting to stop stunnel, pid = " + pid);
                 try {
-                    Runtime.getRuntime().exec("kill " + pid).waitFor();
+                    if (stunnelProcess != null) {
+                        // Can't use destroy as started earlier
+                        // stunnelProcess.destroy();
+
+                        // Can't use kill as too old
+                        //Runtime.getRuntime().exec("kill " + pid).waitFor();
+
+                        int pidInt = Integer.parseInt(pid);
+                        android.os.Process.killProcess(pidInt);
+                    } else {
+                        Log.i(TAG, "Cannot stop stunnel as stunnel process is null.");
+                    }
                 } catch (Exception e) {
                     Log.e(TAG, "Failed to kill stunnel", e);
                 }
@@ -200,6 +214,7 @@ public class StunnelProcessManager {
     public String checkStunnelVersion(Context context) {
         File pidFile = new File(context.getFilesDir().getPath() + "/" + PID);
         if (stunnelProcess != null || pidFile.exists()) {
+            Log.i(TAG, "Trying stop from check Version");
             stop(context);
         }
         checkAndExtract(context);

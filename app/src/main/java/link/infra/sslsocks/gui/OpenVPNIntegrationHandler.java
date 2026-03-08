@@ -71,7 +71,6 @@ public class OpenVPNIntegrationHandler {
 	private final ServiceConnection mConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName className, IBinder service) {
 			srv = IOpenVPNAPIService.Stub.asInterface(service);
-
 			try {
 				Intent intent = srv.prepare(ctxRef.get().getPackageName());
 				if (intent != null && isActivity) {
@@ -91,6 +90,7 @@ public class OpenVPNIntegrationHandler {
 	};
 
 	public void bind() {
+		Log.d(TAG, "onBind");
 		if (srv != null || ctxRef.get() == null) return;
 		Intent intent = new Intent(IOpenVPNAPIService.class.getName());
 		intent.setPackage("de.blinkt.openvpn");
@@ -99,20 +99,25 @@ public class OpenVPNIntegrationHandler {
 	}
 
 	public void unbind() {
+		Log.e(TAG, "Unbind");
 		if (ctxRef.get() == null) return;
 		ctxRef.get().unbindService(mConnection);
 	}
 
 	public void doVpnPermissionRequest() {
-		try {
+		Log.d(TAG, "onDoVpnPermissionRequest");
+        try {
 			Intent intent = srv.prepareVPNService();
 			if (intent != null && isActivity) {
-				Log.d(TAG, "requesting vpn perms");
+				Log.i(TAG, "Openvpn already working. Requesting vpn perms");
 				((Activity)ctxRef.get()).startActivityForResult(intent, VPN_PERMISSION_REQUEST);
 			} else {
+                Log.i(TAG, "No openvpn activity found. Will start...");
 				if (shouldDisconnect) {
+                    Log.i(TAG, "Openvpn Should disconnect first");
 					disconnect();
 				} else {
+                    Log.i(TAG, "Openvpn starting now ...");
 					connectProfile();
 				}
 			}
@@ -122,6 +127,7 @@ public class OpenVPNIntegrationHandler {
 	}
 
 	public void connectProfile() {
+		Log.i(TAG, "Connecting to  profile...");
 		try {
 			List<APIVpnProfile> profiles = srv.getProfiles();
 			APIVpnProfile foundProfile = null;
@@ -144,14 +150,17 @@ public class OpenVPNIntegrationHandler {
 	}
 
 	public void disconnect() {
-		try {
-			srv.disconnect();
-		} catch (RemoteException e) {
-			Log.e(TAG, "Failed to connect to OpenVPN", e);
+		if (srv != null) {
+			try {
+				srv.disconnect();
+			} catch (RemoteException e) {
+				Log.e(TAG, "Failed to connect to OpenVPN", e);
+			}
+		} else {
+			Log.i(TAG, "Openvpn object is null");
 		}
 		if (shouldDisconnect) {
 			doneCallback.run();
 		}
 	}
-
 }
