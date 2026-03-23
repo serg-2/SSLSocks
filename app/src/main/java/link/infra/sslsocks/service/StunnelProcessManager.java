@@ -38,6 +38,8 @@ import androidx.preference.PreferenceManager;
 import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -120,6 +122,12 @@ public class StunnelProcessManager {
         if (stunnelProcess != null || pidFile.exists()) {
             Log.i(TAG, "Trying stop from start");
             stop(context);
+        }
+        try {
+            var a = InetAddress.getByName("mistletoehouse.net");
+            Log.e(TAG, "Defined: " + a);
+        } catch (UnknownHostException e) {
+            Log.e(TAG, "Some exception during resolve: " + e.getMessage());
         }
         checkAndExtract(context);
         setupConfig(context);

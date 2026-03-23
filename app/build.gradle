@@ -37,6 +37,7 @@ android {
             if (isRunningOnTravis) {
                 signingConfig signingConfigs.release
             }
+            // debuggable false
         }
     }
 
